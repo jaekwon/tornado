@@ -485,7 +485,7 @@ class RequestHandler(object):
         if not getattr(RequestHandler, "_templates", None):
             RequestHandler._templates = {}
         if template_path not in RequestHandler._templates:
-            loader = self.application.settings.get("template_loader") or\
+            loader = self.application.settings.get("template_loader")(template_path) or\
               template.Loader(template_path)
             RequestHandler._templates[template_path] = loader
         t = RequestHandler._templates[template_path].load(template_name)

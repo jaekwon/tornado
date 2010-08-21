@@ -83,6 +83,7 @@ from __future__ import with_statement
 
 import cStringIO
 import datetime
+import time
 import logging
 import os.path
 import re
@@ -189,6 +190,23 @@ class Loader(object):
             path = os.path.join(self.root, name)
             f = open(path, "r")
             self.templates[name] = Template(f.read(), name=name, loader=self)
+            f.close()
+        return self.templates[name]
+
+
+class Reloader(Loader):
+    """ Like tornado.Loader but reloads as necessary. Good for development, performance not tuned for production! """
+    def load(self, name, parent_path=None):
+        name = self.resolve_path(name, parent_path=parent_path)
+        path = os.path.join(self.root, name)
+        modified = os.path.getmtime(path)
+        template = self.templates.get(name)
+        if template is None or template.__modified < modified:
+            logging.debug("(re)Loading template file %s" % path)
+            f = open(path, "r")
+            template = Template(f.read(), name=name, loader=self)
+            template.__modified = modified
+            self.templates[name] = template
             f.close()
         return self.templates[name]
 
