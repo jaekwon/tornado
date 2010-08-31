@@ -281,8 +281,6 @@ class RequestHandler(object):
         new_cookie[name] = value
         if domain:
             new_cookie[name]["domain"] = domain
-        elif self.application.setting.get("cookie_domain"):
-            new_cookie[name]["domain"] = self.application.settings["cookie_domain"](self.request.host)
         if expires_days is not None and not expires:
             expires = datetime.datetime.utcnow() + datetime.timedelta(
                 days=expires_days)
@@ -487,10 +485,8 @@ class RequestHandler(object):
         if not getattr(RequestHandler, "_templates", None):
             RequestHandler._templates = {}
         if template_path not in RequestHandler._templates:
-            if "template_loader" in self.application.settings:
-                loader = self.application.settings.["template_loader"](template_path)
-            else:
-                loader = template.Loader(template_path)
+            loader = self.application.settings.get("template_loader")(template_path) or\
+              template.Loader(template_path)
             RequestHandler._templates[template_path] = loader
         t = RequestHandler._templates[template_path].load(template_name)
         args = dict(
