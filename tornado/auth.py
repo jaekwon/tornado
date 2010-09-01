@@ -237,7 +237,7 @@ class OAuthMixin(object):
             return
         cookie_key, cookie_secret = request_cookie.split("|")
         if cookie_key != request_key:
-            logging.warning("Request token does not match cookie")
+            logging.warning("Request token does not match cookie, %s vs %s" % (str(cookie_key), str(request_key)))
             callback(None)
             return
         token = dict(key=cookie_key, secret=cookie_secret)
@@ -371,7 +371,7 @@ class TwitterMixin(OAuthMixin):
     _OAUTH_AUTHENTICATE_URL = "http://api.twitter.com/oauth/authenticate"
     _OAUTH_NO_CALLBACKS = True
 
-    def authenticate_redirect(self):
+    def authenticate_redirect(self, **kwargs):
         """Just like authorize_redirect(), but auto-redirects if authorized.
 
         This is generally the right interface to use if you are using

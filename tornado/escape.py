@@ -72,6 +72,10 @@ def json_decode(value):
     """Returns Python objects for the given JSON string."""
     return _json_decode(value)
 
+def js_escape(value):
+	"""Returns value suitable for surrounding in single/double quotes in javascript source"""
+	return value.replace('"','\\"').replace("'", "\\'")
+
 
 def squeeze(value):
     """Replace all sequences of whitespace chars with a single space."""

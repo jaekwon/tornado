@@ -281,7 +281,7 @@ class RequestHandler(object):
         new_cookie[name] = value
         if domain:
             new_cookie[name]["domain"] = domain
-        elif self.application.settings.get("cookie_domain"):
+        elif self.application.setting.get("cookie_domain"):
             new_cookie[name]["domain"] = self.application.settings["cookie_domain"](self.request.host)
         if expires_days is not None and not expires:
             expires = datetime.datetime.utcnow() + datetime.timedelta(

@@ -117,6 +117,7 @@ class Template(object):
         namespace = {
             "escape": escape.xhtml_escape,
             "url_escape": escape.url_escape,
+			"js_escape": escape.js_escape,
             "json_encode": escape.json_encode,
             "squeeze": escape.squeeze,
             "datetime": datetime,
