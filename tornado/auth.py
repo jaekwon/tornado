@@ -150,6 +150,9 @@ class OpenIdMixin(object):
             callback(None)
             return
 
+        #for name, values in self.request.arguments.iteritems():
+        #    logging.info("%s -> %s" % (name, " ".join(values)))
+
         # Make sure we got back at least an email from attribute exchange
         ax_ns = None
         for name, values in self.request.arguments.iteritems():
@@ -175,6 +178,7 @@ class OpenIdMixin(object):
         last_name = get_ax_arg("http://axschema.org/namePerson/last")
         username = get_ax_arg("http://axschema.org/namePerson/friendly")
         locale = get_ax_arg("http://axschema.org/pref/language").lower()
+        identity = self.get_argument("openid.identity", u"")
         user = dict()
         name_parts = []
         if first_name:
@@ -192,6 +196,7 @@ class OpenIdMixin(object):
         if email: user["email"] = email
         if locale: user["locale"] = locale
         if username: user["username"] = username
+        if identity: user["identity"] = identity
         callback(user)
 
 
