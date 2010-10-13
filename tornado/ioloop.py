@@ -100,7 +100,7 @@ class IOLoop(object):
             self._set_close_exec(self._impl.fileno())
         self._handlers = {}
         self._events = {}
-        self._callbacks = set()
+        self._callbacks = []
         self._timeouts = []
         self._running = False
         self._stopped = False
@@ -210,7 +210,8 @@ class IOLoop(object):
                 now = time.time()
                 while self._timeouts and self._timeouts[0].deadline <= now:
                     timeout = self._timeouts.pop(0)
-                    self._run_callback(timeout.callback)
+                    if not timeout.canceled:
+						self._run_callback(timeout.callback)
                 if self._timeouts:
                     milliseconds = self._timeouts[0].deadline - now
                     poll_timeout = min(milliseconds, poll_timeout)
@@ -301,7 +302,7 @@ class IOLoop(object):
 
     def add_callback(self, callback):
         """Calls the given callback on the next I/O loop iteration."""
-        self._callbacks.add(stack_context.wrap(callback))
+        self._callbacks.append(stack_context.wrap(callback))
         self._wake()
 
     def _wake(self):
@@ -347,18 +348,24 @@ class IOLoop(object):
 
 
 class _Timeout(object):
-    """An IOLoop timeout, a UNIX timestamp and a callback"""
+    """An IOLoop timeout, a UNIX timestamp and a callback.
+       You can either remove it via ioloop.remove_timeout, or
+       you can just call timeout.cancel()"""
 
     # Reduce memory overhead when there are lots of pending callbacks
-    __slots__ = ['deadline', 'callback']
+    __slots__ = ['deadline', 'callback', 'canceled']
 
     def __init__(self, deadline, callback):
         self.deadline = deadline
         self.callback = callback
+        self.canceled = False
 
     def __cmp__(self, other):
         return cmp((self.deadline, id(self.callback)),
                    (other.deadline, id(other.callback)))
+
+    def cancel(self):
+        self.canceled = True
 
 
 class PeriodicCallback(object):
