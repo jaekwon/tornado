@@ -501,6 +501,7 @@ class RequestHandler(object):
             _=self.locale.translate,
             static_url=self.static_url,
             xsrf_form_html=self.xsrf_form_html,
+            xsrf_token=self.xsrf_token,
             reverse_url=self.application.reverse_url
         )
         args.update(self.ui)

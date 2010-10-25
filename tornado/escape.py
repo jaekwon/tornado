@@ -46,7 +46,6 @@ except:
                     "http://pypi.python.org/pypi/simplejson/")
             _json_encode = _json_decode
 
-
 def xhtml_escape(value):
     """Escapes a string so it is valid within XML or XHTML."""
     return utf8(xml.sax.saxutils.escape(value, {'"': "&quot;"}))
