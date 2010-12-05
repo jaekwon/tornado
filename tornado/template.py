@@ -274,9 +274,10 @@ class _ExtendsBlock(_Node):
 
 
 class _IncludeBlock(_Node):
-    def __init__(self, name, reader):
+    def __init__(self, name, reader, namespaced_args=None):
         self.name = name
         self.template_name = reader.name
+        self.namespaced_args = namespaced_args
 
     def find_named_blocks(self, loader, named_blocks):
         included = loader.load(self.name, self.template_name)
@@ -286,9 +287,14 @@ class _IncludeBlock(_Node):
         included = writer.loader.load(self.name, self.template_name)
         old = writer.current_template
         writer.current_template = included
-        included.file.body.generate(writer)
+        if not self.namespaced_args:
+            included.file.body.generate(writer)
+        else:
+            writer.write_line("def _namespaced_include(%s):"%self.namespaced_args)
+            with writer.indent():
+                included.file.body.generate(writer)
+            writer.write_line("_namespaced_include()")
         writer.current_template = old
-
 
 class _ApplyBlock(_Node):
     def __init__(self, method, body=None):
@@ -563,10 +569,14 @@ def _parse(reader, in_block=None):
                     raise ParseError("import missing statement on line %d" % line)
                 block = _Statement(contents)
             elif operator == "include":
+                if ' ' in suffix:
+                    suffix, space, namespaced_args = suffix.partition(" ")
+                else:
+                    namespaced_args = None
                 suffix = suffix.strip('"').strip("'")
                 if not suffix:
                     raise ParseError("include missing file path on line %d" % line)
-                block = _IncludeBlock(suffix, reader)
+                block = _IncludeBlock(suffix, reader, namespaced_args)
             elif operator == "set":
                 if not suffix:
                     raise ParseError("set missing statement on line %d" % line)

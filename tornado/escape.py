@@ -73,7 +73,7 @@ def json_decode(value):
 
 def js_escape(value):
 	"""Returns value suitable for surrounding in single/double quotes in javascript source"""
-	return value.replace('"','\\"').replace("'", "\\'")
+	return value.replace('"','\\"').replace("'", "\\'").replace("\n", "\\n")
 
 
 def squeeze(value):
